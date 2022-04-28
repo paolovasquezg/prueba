@@ -1,0 +1,109 @@
+<html>
+    <head>
+        <style>
+            .submision{
+                display: flex;
+                position: relative;
+                top: 0.5rem;
+                left: 0.5rem;
+            }
+            .Titulo{
+                font-size:xx-large;
+                height: 2rem;
+                border: 3px solid red;
+                line-height: 2rem;
+            }
+            .hidden {
+                display: none;
+            }
+
+            .container {
+                flex: style;
+                border: 2px solid blue;
+            }
+
+        </style>
+    </head>
+    <body>
+        <p class = "Titulo">
+            Todo APP
+        </p>
+        <div class="container">
+            <div class="box">
+                <div id="error" class="hidden">
+                    <p style="color: red; font-size: 24px;">Something went wrong!!!</p>
+                </div>
+                <form id="form">
+                    <div>
+                        <label for ="field1">id</label>
+                        <input type = "text" id = "id" name ="id">
+                    </div>
+                    <div>
+                        <label for = "field2">description</label>
+                        <input type="text" id="description" name="description" /> 
+                    </div>
+                    <div class = "submision">
+                        <input type="submit" value="Create"/>  
+                    </div>
+                </form>
+            </div>
+    
+            <div class="box">
+                <ul style = 'list-style-type: circle' id ='todos'>
+                    {% for d in data %}
+                            <li> Tarea {{d.id}} : </li> 
+                                <TT>Description: {{d.description}} ; Completed: {{d.completed}}</TT>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    
+        <script>
+            const descriptionInput = document.getElementById('description');
+            const idInput = document.getElementById('id');
+            document.getElementById('form').onsubmit = function(e) {
+                e.preventDefault();
+                const description = descriptionInput.value;
+                const id = idInput.value;
+                fetch('/todos/create_post', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        'id': id,
+                        'description': description
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(response => {
+                    console.log("response: ", response);
+                    return response.json();
+                })
+                .then(function(jsonResponse) {
+                    console.log("jsonResponse: ", jsonResponse);
+                    const c = document.createElement('TT');
+                    const li = document.createElement('li');
+                    const lo = document.createElement('TT')
+                    li.innerHTML = "Tarea " + jsonResponse['id'] + " :";
+                    c.innerHTML = 'Description: ' + jsonResponse['description'];
+                    lo.innerHTML = ' ; Completed: False';
+
+                    document.getElementById('todos').appendChild(li);
+                    document.getElementById('todos').appendChild(c);
+                    document.getElementById('todos').appendChild(lo);
+                    
+                    document.getElementById('error').className = 'hidden';
+                    document.getElementById('description').value = '';
+                    document.getElementById('id').value = '';
+                }).catch(function(){
+                    document.getElementById('error').className = '';
+                });
+
+            }
+
+        document.getElementById('form').onchange = function(e){
+            document.getElementById('error').className = 'hidden';
+        }
+            
+        </script>
+    </body>
+</html>
